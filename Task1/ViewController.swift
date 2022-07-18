@@ -3,84 +3,33 @@ import SnapKit
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = CustomCell()
-        if indexPath.section == viewData?.list.count {
-            cell.category.text = viewData?.summaryListItem.leftLabel
-            cell.amount.text = viewData?.summaryListItem.rightLabel
-            cell.amount.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-            cell.category.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        }
-        else {
-            cell.category.text = viewData?.list[indexPath.section].leftLabel
-            cell.amount.text = viewData?.list[indexPath.section].rightLabel
-            cell.setArrowButton()
-        }
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return UIView()
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return (viewData?.list.count ?? 0) + 1
-    }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        if section == 2 {
-            return 35
-        }
-        else if section == 3 {
-            return 0
-        }
-        else {
-            return 16
-        }
-    }
-    
-    private var line = LineView()
-    
-    private var dashedLine = LineView()
-    
-    private var cardView = UIView()
-    
-    private var tableView = UITableView()
-    
-    private var payNowButton = UIButton()
-    
     private var arrowButton = UIButton()
-    
     private var repaymentLabel = UILabel()
-    
-    private var sliceBillButton = UIButton()
-    
+    private var cardView = UIView()
     private var imageView = UIImageView()
-    
     private var monthLabel = UILabel()
-    
     private var durationLabel = UILabel()
-    
-    private var viewData : DataFile?
+    private var tableView = UITableView()
+    private var line = LineView()
+    private var dashedLine = LineView()
+    private var sliceBillButton = UIButton()
+    private var payNowButton = UIButton()
+    private var viewData: DataFile?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         addSubviews()
-        configureCardView()
-        configureTableView()
-        configureLineView()
-        configureDashedLineView()
-        configurePayNowButton()
-        configureRepaymentLabel()
         configureArrowButton()
-        configureSliceBillButton()
+        configureRepaymentLabel()
+        configureCardView()
         configureImageView()
         configureMonthLabel()
         configureDurationLabel()
+        configureTableView()
+        configureLineView()
+        configureDashedLineView()
+        configureSliceBillButton()
+        configurePayNowButton()
         fetchData() { [weak self] DataFile in
             self?.viewData = DataFile
             DispatchQueue.main.async {
@@ -91,17 +40,38 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     private func addSubviews () {
-        view.addSubview(cardView)
-        cardView.addSubview(tableView)
-        cardView.addSubview(line)
-        cardView.addSubview(dashedLine)
-        view.addSubview(payNowButton)
-        view.addSubview(repaymentLabel)
         view.addSubview(arrowButton)
-        cardView.addSubview(sliceBillButton)
+        view.addSubview(repaymentLabel)
+        view.addSubview(cardView)
         cardView.addSubview(imageView)
         imageView.addSubview(monthLabel)
         imageView.addSubview(durationLabel)
+        cardView.addSubview(tableView)
+        cardView.addSubview(line)
+        cardView.addSubview(dashedLine)
+        cardView.addSubview(sliceBillButton)
+        view.addSubview(payNowButton)
+    }
+    
+    private func configureArrowButton () {
+        let buttonImage = UIImage(named: "Left Arrow")
+        arrowButton.setImage(buttonImage, for: .normal)
+        arrowButton.snp.makeConstraints { make in
+            make.height.equalTo(48)
+            make.width.equalTo(48)
+            make.leading.equalToSuperview().offset(12)
+            make.top.equalToSuperview().offset(50)
+        }
+    }
+    
+    private func configureRepaymentLabel () {
+        repaymentLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        repaymentLabel.snp.makeConstraints { make in
+            make.width.equalTo(276)
+            make.height.equalTo(48)
+            make.leading.equalToSuperview().offset(60)
+            make.top.equalToSuperview().offset(50)
+        }
     }
     
     private func configureCardView () {
@@ -120,89 +90,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         cardView.layer.shadowOpacity = 1
         cardView.layer.cornerRadius = 16
         cardView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-    }
-    
-    private func configureTableView () {
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.rowHeight = 20
-        tableView.separatorStyle = .none
-        tableView.isScrollEnabled = false
-        tableView.allowsSelection = false
-        tableView.register(CustomCell.self, forCellReuseIdentifier: "cell")
-        tableView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(265)
-            make.top.equalToSuperview().offset(109)
-            make.height.equalTo(145)
-        }
-    }
-    
-    func configureLineView () {
-        line.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(217)
-            make.width.equalTo(265)
-            make.height.equalTo(1)
-        }
-    }
-    
-    private func configureDashedLineView () {
-        dashedLine.backgroundColor = .white
-        dashedLine.pattern = [5.0, 3.0]
-        dashedLine.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(273)
-            make.width.equalTo(265)
-            make.height.equalTo(1)
-        }
-    }
-    
-    private func configurePayNowButton () {
-        payNowButton.backgroundColor = UIColor(red: 0.384, green: 0.302, blue: 0.761, alpha: 1)
-        payNowButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
-        payNowButton.layer.cornerRadius = 24
-        payNowButton.snp.makeConstraints { make in
-            make.height.equalTo(48)
-            make.width.equalTo(325)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-60)
-        }
-    }
-    
-    private func configureRepaymentLabel () {
-        repaymentLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        repaymentLabel.snp.makeConstraints { make in
-            make.width.equalTo(276)
-            make.height.equalTo(48)
-            make.leading.equalToSuperview().offset(60)
-            make.top.equalToSuperview().offset(50)
-        }
-    }
-    
-    private func configureArrowButton () {
-        let buttonImage = UIImage(named: "Left Arrow")
-        arrowButton.setImage(buttonImage, for: .normal)
-        arrowButton.snp.makeConstraints { make in
-            make.height.equalTo(48)
-            make.width.equalTo(48)
-            make.leading.equalToSuperview().offset(12)
-            make.top.equalToSuperview().offset(50)
-        }
-    }
-    
-    private func configureSliceBillButton () {
-        sliceBillButton.setTitle("Slice Bill", for: .normal)
-        let buttonColor = UIColor(red: 0.384, green: 0.302, blue: 0.761, alpha: 1)
-        sliceBillButton.backgroundColor = .white
-        sliceBillButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
-        sliceBillButton.setTitleColor(buttonColor, for: .normal)
-        sliceBillButton.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(281)
-            make.width.equalTo(91)
-            make.height.equalTo(48)
-        }
     }
     
     private func configureImageView () {
@@ -239,11 +126,106 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    private func setData () {
-        durationLabel.text = viewData?.banner.subtext
-        monthLabel.text = viewData?.banner.title
-        repaymentLabel.text = viewData?.screenTitle
-        payNowButton.setTitle(viewData?.cta.text, for: .normal)
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = CustomCell()
+        if indexPath.section == viewData?.list.count {
+            cell.category.text = viewData?.summaryListItem.leftLabel
+            cell.amount.text = viewData?.summaryListItem.rightLabel
+            cell.amount.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+            cell.category.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        }
+        else {
+            cell.category.text = viewData?.list[indexPath.section].leftLabel
+            cell.amount.text = viewData?.list[indexPath.section].rightLabel
+            cell.setArrowButton()
+        }
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return UIView()
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return (viewData?.list.count ?? 0) + 1
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        if section == (viewData?.list.count ?? 0) - 1 {
+            return 35
+        }
+        else if section == viewData?.list.count {
+            return 0
+        }
+        else {
+            return 16
+        }
+    }
+    
+    private func configureTableView () {
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.rowHeight = 20
+        tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        tableView.allowsSelection = false
+        tableView.register(CustomCell.self, forCellReuseIdentifier: "cell")
+        tableView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(265)
+            make.top.equalToSuperview().offset(109)
+            make.height.equalTo(145)
+        }
+    }
+    
+    private func configureLineView () {
+        line.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(217)
+            make.width.equalTo(265)
+            make.height.equalTo(1)
+        }
+    }
+    
+    private func configureDashedLineView () {
+        dashedLine.backgroundColor = .white
+        dashedLine.pattern = [5.0, 3.0]
+        dashedLine.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(273)
+            make.width.equalTo(265)
+            make.height.equalTo(1)
+        }
+    }
+    
+    private func configureSliceBillButton () {
+        sliceBillButton.setTitle("Slice Bill", for: .normal)
+        let buttonColor = UIColor(red: 0.384, green: 0.302, blue: 0.761, alpha: 1)
+        sliceBillButton.backgroundColor = .white
+        sliceBillButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
+        sliceBillButton.setTitleColor(buttonColor, for: .normal)
+        sliceBillButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(281)
+            make.width.equalTo(91)
+            make.height.equalTo(48)
+        }
+    }
+    
+    private func configurePayNowButton () {
+        payNowButton.backgroundColor = UIColor(red: 0.384, green: 0.302, blue: 0.761, alpha: 1)
+        payNowButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
+        payNowButton.layer.cornerRadius = 24
+        payNowButton.snp.makeConstraints { make in
+            make.height.equalTo(48)
+            make.width.equalTo(325)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-60)
+        }
     }
     
     private struct DataFile: Codable{
@@ -295,5 +277,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
         dataTask.resume()
+    }
+    
+    private func setData () {
+        durationLabel.text = viewData?.banner.subtext
+        monthLabel.text = viewData?.banner.title
+        repaymentLabel.text = viewData?.screenTitle
+        payNowButton.setTitle(viewData?.cta.text, for: .normal)
     }
 }
